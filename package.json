@@ -1,25 +1,26 @@
 {
   "name": "s3-to-anything",
   "version": "1.0.0",
-  "source": "index.js",
-  "main": "dist/s3-to-anything.js",
-  "umd:main": "dist/s3-to-anything.umd.js",
-  "module": "dist/s3-to-anything.m.js",
-  "license": "MIT",
+  "description": "Sync S3 bucket with anything",
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint --fix .",
+    "lint:ci": "eslint . --format junit --output-file ./reports/eslint.xml",
+    "test": "nyc mocha ./test/**/*.js",
+    "test:ci": "nyc mocha ./test/**/*.js --reporter mocha-junit-reporter --reporter-options mochaFile=./reports/junit.xml"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@bitbucket.org/digitregroup/s3-to-anything.git"
+  },
   "devDependencies": {
     "@digitregroup/eslint-config": "^1.7.0",
     "eslint": "^4.16.0",
-    "chai": "^4.1.2",
-    "microbundle": "^0.4.4",
-    "mocha": "^5.0.5",
+    "mocha-junit-reporter": "^1.17.0",
     "nyc": "^11.6.0",
+    "chai": "^4.1.2",
+    "mocha": "^5.0.5",
     "mock-require": "^3.0.2"
-  },
-  "scripts": {
-    "lint": "eslint .",
-    "build": "microbundle",
-    "dev": "microbundle watch",
-    "test": "nyc mocha"
   },
   "dependencies": {
     "async": "^2.6.0",
