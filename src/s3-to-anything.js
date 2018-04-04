@@ -13,7 +13,9 @@ class S3ToAnything {
     this.logger = customLogger || console;
 
     this.logger.log('Reading options from event:\n', util.inspect(event, {depth: 5}));
-    this.observers = [];
+
+    this.constraints = [];
+    this.observers   = [];
 
     const S3Event = S3EventParser.parse(event, customLogger);
 
@@ -36,27 +38,34 @@ class S3ToAnything {
     const next = callback || (() => null);
 
     // Check if the current file must be processed
-    if (!this.isProcessAllowed()) {
+    if (!this.isProcessAllowed({
+      srcBucket: this.srcBucket,
+      srcKey:    this.srcKey,
+      keyPrefix: this.keyPrefix
+    })) {
       return next('File prefix not supported. Skiping process.', true);
     }
 
     this.logger.log('Processing');
 
-    return async.waterfall([
-      next => this.downloadFile(next),
-      (data, next) => this.notifyObservers(data, next),
-    ],
-    (err) => { // On done
-      if (err) {
-        this.logger.error(err);
+    return async.waterfall(
+      [
+        next => this.downloadFile(next),
+        (data, next) => this.notifyObservers(data, next),
+      ],
 
-        return next(err);
-      } else {
-        this.logger.log('Process completed.');
+      (err) => { // On done
+        if (err) {
+          this.logger.error(err);
 
-        return next(null, true);
+          return next(err);
+        } else {
+          this.logger.log('Process completed.');
+
+          return next(null, true);
+        }
       }
-    });
+    );
   }
 
   /**
@@ -109,11 +118,23 @@ class S3ToAnything {
   }
 
   /**
+   * Adds a constraint that will be checked when the file is ready to be processed
+   * @param {function} observer Callback to be executed with the Parsed event data
+   * @return {S3ToAnything} Fluent setter
+   */
+  addConstraint(observer) {
+    this.constraints.push(observer);
+
+    return this;
+  }
+
+  /**
    * Check if the file must be processed or not
+   * @param {{ srcBucket: string, srcKey: string, keyPrefix: string }} data Parsed event data
    * @return {boolean} return true if the file must be processed
    */
-  isProcessAllowed() {
-    return this.keyPrefix === process.env.S3_ALLOWED_PREFIX;
+  isProcessAllowed(data) {
+    return this.constraints.reduce((result, next) => result && next(data), true);
   }
 }
 
