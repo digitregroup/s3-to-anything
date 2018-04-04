@@ -1,9 +1,10 @@
 const {expect} = require('chai');
 
-const S3ToAnything = require('../src/s3-to-anything');
+const S3ToAnything  = require('../src/s3-to-anything');
 const S3ClientDummy = require('./dummies/s3-client');
+const silentLogger  = require('./helpers/silentLogger');
 
-const allowedPrefix = 'objects';
+const allowedPrefix           = 'objects';
 process.env.S3_ALLOWED_PREFIX = allowedPrefix;
 
 /**
@@ -13,19 +14,19 @@ const getService = () => {
   const event = {
     Records: [{
       eventSource: 'aws:s3',
-      s3: {
+      s3:          {
         bucket: {name: 'bucket.name'},
         object: {key: allowedPrefix + '/object.key'}
       }
     }]
   };
 
-  return new S3ToAnything(event);
+  return new S3ToAnything(event, silentLogger);
 };
 
 
 const s3Client = new S3ClientDummy({
-  accessKeyId: 'accessKeyId',
+  accessKeyId:     'accessKeyId',
   secretAccessKey: 'secretAccessKey'
 });
 
@@ -46,32 +47,34 @@ describe('S3ToGoToWebinar.process', () => {
   });
   it('should not fail if S3Client has  been set', () => {
     expect(() =>
-      getService().setS3Client(s3Client).process()
+      getService().setS3Client(s3Client)
+        .process()
     ).to.not.throw();
   });
   it('should fail if file prefix is unknown', () => {
     const event = {
       Records: [{
         eventSource: 'aws:s3',
-        s3: {
+        s3:          {
           bucket: {name: 'bucket.name'},
           object: {key: 'unkownprefix/object.key'}
         }
       }]
     };
 
-    const service = new S3ToAnything(event);
-    service.setS3Client(s3Client).process(err => expect(err).to.exist)
+    const service = new S3ToAnything(event, silentLogger);
+    service.setS3Client(s3Client).process(err => expect(err).to.exist);
   });
   it('should handle callback errors', () => {
-    const service = getService();
+    const service       = getService();
     const downloadError = service.setS3Client({
       download: (bucket, key, next) => {
         next(new Error('this is an error'));
       }
     });
-    const err = console.error;
-    console.error = () => {
+    const err           = console.error;
+    // eslint-disable-next-line no-empty-function
+    console.error       = () => {
     };
     downloadError.process(err => expect(err).to.exist);
     console.error = err;
