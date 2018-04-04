@@ -1,7 +1,8 @@
 const {expect} = require('chai');
-const mock = require('mock-require');
+const mock     = require('mock-require');
 
 mock('aws-sdk/clients/s3', class {
+// eslint-disable-next-line class-methods-use-this
   getObject(data, callback) {
     callback(data);
   }
@@ -27,10 +28,10 @@ describe('S3Client.download', () => {
       accessKeyId:     'accessKeyId',
       secretAccessKey: 'secretAccessKey',
     };
-    const client = new S3Client(validConfig);
-    const bucket = 'bkt' + (+new Date);
-    const key = 'pathto/key' + (+new Date);
-    client.download(bucket, key, data => {
+    const client      = new S3Client(validConfig);
+    const bucket      = 'bkt' + (+new Date);
+    const key         = 'pathto/key' + (+new Date);
+    client.download(bucket, key, (data) => {
       expect(data).to.have.property('Bucket');
       expect(data.Bucket).to.be.equal(bucket);
       expect(data).to.have.property('Key');

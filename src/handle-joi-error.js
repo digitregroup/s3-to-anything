@@ -4,8 +4,8 @@
  * @return {function} Throws an error on failure
  */
 module.exports = targetName => (err) => {
-    if (err) {
-        err.message = targetName + ' config validation failed.\n' + err.message;
-        throw err;
-    }
+  if (err) {
+    err.message = targetName + ' config validation failed.\n' + err.message;
+    throw err;
+  }
 };
