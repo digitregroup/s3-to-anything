@@ -17,9 +17,10 @@ class S3ToAnything {
    * Perform the whole process of synchronization
    * @param {Object} event Event sent by S3
    * @param {function} [finalCallback] Callback Function called at the end of the process
+   * @param {boolean} [waterfall] Process sequentially (parallel by default)
    * @return {*} callback return or async.waterfall object
    */
-  process(event, finalCallback) {
+  process(event, finalCallback, waterfall) {
 
     const logger = this.logger;
 
@@ -38,7 +39,7 @@ class S3ToAnything {
 
     const next = finalCallback || (() => null);
 
-    return async.waterfall(
+    return (waterfall && async.waterfall || async.parallel)(
       this.notifyObservers(this.eventParams),
       function(err) { // On done
         if (err) {
