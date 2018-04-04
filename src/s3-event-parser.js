@@ -1,5 +1,5 @@
 const path = require('path');
-const Joi  = require('joi');
+const Joi = require('joi');
 
 const handleJoiError = require('./handle-joi-error')('S3EventParser');
 
@@ -40,13 +40,13 @@ const S3EventParser = class {
       object: Joi.object().keys({
         key: Joi.string().required()
       })
-        .required(),
+                 .required(),
       bucket: Joi.object().keys({
         name: Joi.string().required()
       })
-        .required()
+                 .required()
     })
-      .required();
+                      .required();
 
     Joi.validate(s3NotifObject, schema, {allowUnknown: true}, handleJoiError);
   }
@@ -60,24 +60,26 @@ const S3EventParser = class {
   static getS3NotificationFromEvent(event) {
     let s3Notification = null;
 
-    if (event.Records && event.Records[0]) {
-      switch (event.Records[0].eventSource || event.Records[0].EventSource) {
-        case 'aws:s3':
-          console.log('Parsing from aws:s3 event.');
-          s3Notification = event.Records[0].s3;
-          break;
-        case 'aws:sns':
-          console.log('Parsing from aws:sns event.');
-          s3Notification = S3EventParser.getS3NotificationFromEvent(JSON.parse(event.Records[0].Sns.Message));
-          break;
-        default:
-          throw new Error(
-            'Unsupported AWS Event Source: ' +
-            event.Records[0].eventSource || event.Records[0].EventSource
-          );
-      }
-    } else {
+    if (!event || !event.Records || !event.Records[0]) {
       throw new Error('Wrong AWS Event payload.');
+    }
+
+    switch (event.Records[0].eventSource || event.Records[0].EventSource) {
+      case 'aws:s3':
+        console.log('Parsing from aws:s3 event.');
+        s3Notification = event.Records[0].s3;
+        break;
+      case 'aws:sns':
+        console.log('Parsing from aws:sns event.');
+        s3Notification = S3EventParser.getS3NotificationFromEvent(
+          JSON.parse(event.Records[0].Sns.Message)
+        );
+        break;
+      default:
+        throw new Error(
+          'Unsupported AWS Event Source: ' +
+          event.Records[0].eventSource || event.Records[0].EventSource
+        );
     }
 
     return s3Notification;
