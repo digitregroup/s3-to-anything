@@ -1,6 +1,7 @@
 const {expect} = require('chai');
 
 const S3EventParser = require('../src/s3-event-parser');
+const silentLogger  = require('./helpers/silentLogger');
 
 describe('S3EventParser.validateS3NotificationObject', () => {
   it('should fail if event is not correctly formatted', () => {
@@ -8,8 +9,8 @@ describe('S3EventParser.validateS3NotificationObject', () => {
   });
   it('should succeed if event is  correctly formatted', () => {
     expect(() => S3EventParser.validateS3NotificationObject({
-      object: {key: "key"},
-      bucket: {name: "name"}
+      object: {key: 'key'},
+      bucket: {name: 'name'}
     })).not.to.throw();
   });
 });
@@ -28,20 +29,24 @@ describe('S3EventParser.getS3NotificationFromEvent', () => {
     })).to.throw();
   });
   it('should work with S3', () => {
-    expect(() => S3EventParser.getS3NotificationFromEvent({
-      Records: [{eventSource: 'aws:s3'}]
-    })).not.to.throw();
+    const event = {Records: [{eventSource: 'aws:s3'}]};
+    expect(() => S3EventParser.getS3NotificationFromEvent(event, silentLogger)).not.to.throw();
   });
   it('should parse S3 notification correctly', () => {
     const randomNotification = 'notif' + (+new Date);
+
     const result = S3EventParser.getS3NotificationFromEvent({
-      Records: [{eventSource: 'aws:s3', s3: randomNotification}]
-    });
+      Records: [{
+        eventSource: 'aws:s3',
+        s3:          randomNotification
+      }]
+    }, silentLogger);
+
     expect(result).to.be.equal(randomNotification);
   });
   it('should parse SNS notification correctly', () => {
     const randomNotification = 'notif' + (+new Date);
-    const event = {
+    const event              = {
       Records: [{
         EventSource: 'aws:sns',
         Sns:         {
@@ -54,7 +59,7 @@ describe('S3EventParser.getS3NotificationFromEvent', () => {
         }
       }]
     };
-    const result = S3EventParser.getS3NotificationFromEvent(event);
+    const result             = S3EventParser.getS3NotificationFromEvent(event, silentLogger);
     expect(result).to.be.equal(randomNotification);
   });
 });
