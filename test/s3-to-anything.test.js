@@ -4,8 +4,7 @@ const S3ToAnything  = require('../src/s3-to-anything');
 const S3ClientDummy = require('./dummies/s3-client');
 const silentLogger  = require('./helpers/silentLogger');
 
-const allowedPrefix           = 'objects';
-process.env.S3_ALLOWED_PREFIX = allowedPrefix;
+const allowedPrefix = 'objects';
 
 /**
  * @return {S3ToAnything} S3 to anything
@@ -30,7 +29,7 @@ const s3Client = new S3ClientDummy({
   secretAccessKey: 'secretAccessKey'
 });
 
-describe('S3ToGoToWebinar.constructor', () => {
+describe('S3ToAnything.constructor', () => {
   it('should work', () => {
     const service = getService();
     expect(service).to.be.an.instanceOf(S3ToAnything);
@@ -40,7 +39,7 @@ describe('S3ToGoToWebinar.constructor', () => {
   });
 });
 
-describe('S3ToGoToWebinar.process', () => {
+describe('S3ToAnything.process', () => {
   it('should fail if S3Client has not been set', () => {
     const service = getService();
     expect(() => service.process()).to.throw();
@@ -62,8 +61,11 @@ describe('S3ToGoToWebinar.process', () => {
       }]
     };
 
-    const service = new S3ToAnything(event, silentLogger);
-    service.setS3Client(s3Client).process(err => expect(err).to.exist);
+    new S3ToAnything(event, silentLogger)
+      .addConstraint(data => allowedPrefix === data.keyPrefix)
+      .setS3Client(s3Client)
+      .process(err => expect(err).to.exist);
+
   });
   it('should handle callback errors', () => {
     const service       = getService();
@@ -81,7 +83,7 @@ describe('S3ToGoToWebinar.process', () => {
   });
 });
 
-describe('S3ToGoToWebinar.addObserver', () => {
+describe('S3ToAnything.addObserver', () => {
   it('should execute observer callbacks', () => {
     let observerCalled = false;
     getService()
