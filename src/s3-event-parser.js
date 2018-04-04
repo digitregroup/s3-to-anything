@@ -63,7 +63,7 @@ const S3EventParser = class {
     const logger = customLogger || console;
 
     if (!event || !event.Records || !event.Records[0]) {
-      throw new Error('Wrong AWS Event payload.');
+      throw new Error('Invalid AWS Event payload (should have "Records" child key).');
     }
 
     let s3Notification = null;
