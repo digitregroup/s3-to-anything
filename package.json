@@ -1,7 +1,13 @@
 {
-  "name": "s3-to-anything",
+  "name": "@digitregroup/s3-to-anything",
   "version": "1.0.0",
   "description": "Sync S3 bucket with anything",
+  "author": "DigitRE group",
+  "keywords": [
+    "digitregroup",
+    "s3",
+    "aws"
+  ],
   "main": "index.js",
   "scripts": {
     "lint": "eslint --fix .",
