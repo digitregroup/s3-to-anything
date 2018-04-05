@@ -1,6 +1,6 @@
 # S3 To Anything
 
-[![CircleCI](https://circleci.com/bb/digitregroup/s3-to-anything.svg?style=shield)](https://circleci.com/bb/digitregroup/s3-to-anything)
+[![CircleCI](https://circleci.com/bb/digitregroup/s3-to-anything.svg?style=svg)](https://circleci.com/bb/digitregroup/s3-to-anything)
 
 Trigger any action when a new file is dropped into a S3 bucket.
 S3ToAnything parses S3 file events and triggers your callbacks, if your constraints are met.
