@@ -29,7 +29,7 @@
     "mock-require": "^3.0.2"
   },
   "dependencies": {
-    "async": "^2.6.0",
+    "async": "^3.2.2",
     "aws-sdk": "^2.219.1",
     "joi": "<13"
   }
